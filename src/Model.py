@@ -29,7 +29,7 @@ class Place:
         self.display_code = display_code
 
     def __str__(self):
-        return '{} ({})'.format(self.name, self.type)
+        return '{}'.format(self.name)
 
 # Clase con informacion correspondiente a las aerolineas
 class Airline:
@@ -76,9 +76,9 @@ class Segment:
                                                                                          self.departure, self.arrival, self.operating_carrier_id)
 
 class RecordCSV:
-    def __init__(self,id, seg_id, origen, destino, hora_salida, hora_llegada, duracion, numVuelo, aerolinea, cod_aerolinea, escalas, precio):
-        self.id = id
-        self.seg_id = seg_id
+    def __init__(self,id_oferta, id_vuelo, origen, destino, hora_salida, hora_llegada, duracion, numVuelo, aerolinea, cod_aerolinea, escalas, precio):
+        self.id_oferta = id_oferta
+        self.id_vuelo = id_vuelo
         self.origen = origen
         self.destino = destino
         self.hora_salida = hora_salida
