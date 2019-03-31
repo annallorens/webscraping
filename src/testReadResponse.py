@@ -29,7 +29,7 @@ params = (
     ('response_include', 'query;deeplink;segment;stats;fqs;pqs'),
 )
 
-data = '{"market":"UK","currency":"GBP","locale":"en-GB","cabin_class":"economy","prefer_directs":true,"trip_type":"one-way","legs":[{"origin":"MAD","destination":"LOND","date":"2019-03-31","add_alternative_origins":false,"add_alternative_destinations":false}],"origin":{"id":"MAD","airportId":"MAD","name":"Madrid","cityId":"MADR","cityName":"Madrid","countryId":"ES","type":"Airport","centroidCoordinates":[-3.563333,40.472222]},"destination":{"id":"LOND","name":"London","cityId":"LOND","cityName":"London","countryId":"UK","type":"City","centroidCoordinates":[-0.0943465343,51.5041174139]},"outboundDate":"2019-03-31","adults":1,"child_ages":[],"options":{"include_unpriced_itineraries":true,"include_mixed_booking_options":true},"state":{}}'
+data = '{"market":"UK","currency":"GBP","locale":"en-GB","cabin_class":"economy","prefer_directs":true,"trip_type":"one-way","legs":[{"origin":"BCN","destination":"LOND","date":"2019-04-01","add_alternative_origins":false,"add_alternative_destinations":false}],"origin":{"id":"BCN","airportId":"BCN","name":"Madrid","cityId":"MADR","cityName":"Madrid","countryId":"ES","type":"Airport","centroidCoordinates":[-3.563333,40.472222]},"destination":{"id":"LOND","name":"London","cityId":"LOND","cityName":"London","countryId":"UK","type":"City","centroidCoordinates":[-0.0943465343,51.5041174139]},"outboundDate":"2019-03-31","adults":1,"child_ages":[],"options":{"include_unpriced_itineraries":true,"include_mixed_booking_options":true},"state":{}}'
 
 response = requests.post('https://www.skyscanner.net/g/conductor/v1/fps3/search/', headers=headers, params=params, data=data)
 
@@ -98,13 +98,17 @@ segmentos = readSegments()
 legs = readLegs()
 itinerarios = readItineraries()
 
+# Contador de Itinerarios y Segmentos como identificadores para la salida en formato CSV
+numItinerarios = 1
+numSegmentos = 1
+
 recordsCSV = []
 for i in itinerarios:
     for l in itinerarios[i].legs:
         for s in itinerarios[i].legs[l].segments:
             recordsCSV.append(Model.RecordCSV(
-                itinerarios[i].id,
-                itinerarios[i].legs[l].segments[s].id,
+                numItinerarios,
+                numSegmentos,
                 lugares[itinerarios[i].legs[l].segments[s].origin_place_id],
                 lugares[itinerarios[i].legs[l].segments[s].destination_place_id],
                 itinerarios[i].legs[l].segments[s].departure,
@@ -116,10 +120,12 @@ for i in itinerarios:
                 itinerarios[i].legs[l].stops,
                 itinerarios[i].prices
             ))
+            numSegmentos += 1
+    numItinerarios += 1
 
 datos = pd.DataFrame([vars(r) for r in recordsCSV])
 
-columnsTitles = ['id', 'seg_id', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'numVuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
+columnsTitles = ['id_oferta', 'id_vuelo', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'numVuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
 
 datos = datos.reindex(columns=columnsTitles)
 
