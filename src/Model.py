@@ -5,18 +5,7 @@ class Itinerarie:
         self.prices = prices
 
     def __str__(self):
-        pricesStr = ''
-        for price in self.prices:
-            options = price
-            for opt in options['price']:
-                print(opt)
-                if 'amount' in opt:
-                    #print(self.prices['price']['amount'])
-                    print('yes')
-                else:
-                    print('no')
-
-        return '\nID: {}\n{}Precio Total: {}'.format(self.id, self.legs, pricesStr)
+        return '\nID: {}\n{}Precio Total: {}'.format(self.id, self.legs, self.prices)
 
 # Clase de lugares (pueden ser ciudades o aeropuertos) que seran origen o destino de las rutas
 class Place:
@@ -76,7 +65,7 @@ class Segment:
                                                                                          self.departure, self.arrival, self.operating_carrier_id)
 
 class RecordCSV:
-    def __init__(self,id_oferta, id_vuelo, origen, destino, hora_salida, hora_llegada, duracion, numVuelo, aerolinea, cod_aerolinea, escalas, precio):
+    def __init__(self,id_oferta, id_vuelo, origen, destino, hora_salida, hora_llegada, duracion, num_vuelo, aerolinea, cod_aerolinea, escalas, precio):
         self.id_oferta = id_oferta
         self.id_vuelo = id_vuelo
         self.origen = origen
@@ -84,7 +73,7 @@ class RecordCSV:
         self.hora_salida = hora_salida
         self.hora_llegada = hora_llegada
         self.duracion = duracion
-        self.numVuelo = numVuelo
+        self.num_vuelo = num_vuelo
         self.aerolinea = aerolinea
         self.escalas = escalas
         self.cod_aerolinea = cod_aerolinea

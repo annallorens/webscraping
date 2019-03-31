@@ -82,13 +82,17 @@ def readLegs():
 
 def readItineraries():
     itineraries = {}
-    itinerarieLegs = {}
+    itineraryLegs = {}
 
     for it in response_json['itineraries']:
+        precio = 0.0
+        for opt in it['pricing_options']:
+            if 'amount' in opt['price']:
+                precio = opt['price']['amount']
         for l in it['leg_ids']:
-            itinerarieLegs[l] = legs[l]
-        itineraries[it['id']] = Model.Itinerarie(it['id'], itinerarieLegs, it['pricing_options'])
-        itinerarieLegs = {}
+            itineraryLegs[l] = legs[l]
+        itineraries[it['id']] = Model.Itinerarie(it['id'], itineraryLegs, precio)
+        itineraryLegs = {}
 
     return itineraries
 
@@ -125,7 +129,7 @@ for i in itinerarios:
 
 datos = pd.DataFrame([vars(r) for r in recordsCSV])
 
-columnsTitles = ['id_oferta', 'id_vuelo', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'numVuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
+columnsTitles = ['id_oferta', 'id_vuelo', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'num_vuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
 
 datos = datos.reindex(columns=columnsTitles)
 
