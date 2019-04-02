@@ -80,32 +80,30 @@ itinerarios = readItineraries()
 
 # Contador de Itinerarios y Segmentos como identificadores para la salida en formato CSV
 numItinerarios = 1
-numSegmentos = 1
 
 recordsCSV = []
-for i in itinerarios:
+for i in itinerarios: 
     for l in itinerarios[i].legs:
-        for s in itinerarios[i].legs[l].segments:
-            recordsCSV.append(Model.RecordCSV(
-                numItinerarios,
-                numSegmentos,
-                lugares[itinerarios[i].legs[l].segments[s].origin_place_id],
-                lugares[itinerarios[i].legs[l].segments[s].destination_place_id],
-                itinerarios[i].legs[l].segments[s].departure,
-                itinerarios[i].legs[l].segments[s].arrival,
-                itinerarios[i].legs[l].segments[s].duration,
-                itinerarios[i].legs[l].segments[s].marketing_flight_number,
-                aerolineas[itinerarios[i].legs[l].segments[s].operating_carrier_id].name,
-                aerolineas[itinerarios[i].legs[l].segments[s].operating_carrier_id].display_code,
-                itinerarios[i].legs[l].stops,
-                itinerarios[i].prices
-            ))
-            numSegmentos += 1
-    numItinerarios += 1
+        if itinerarios[i].legs[l].stops == 0:
+            for s in itinerarios[i].legs[l].segments:
+                recordsCSV.append(Model.RecordCSV(
+                    numItinerarios,
+                    lugares[itinerarios[i].legs[l].segments[s].origin_place_id],
+                    lugares[itinerarios[i].legs[l].segments[s].destination_place_id],
+                    itinerarios[i].legs[l].segments[s].departure,
+                    itinerarios[i].legs[l].segments[s].arrival,
+                    itinerarios[i].legs[l].segments[s].duration,
+                    itinerarios[i].legs[l].segments[s].marketing_flight_number,
+                    aerolineas[itinerarios[i].legs[l].segments[s].operating_carrier_id].name,
+                    aerolineas[itinerarios[i].legs[l].segments[s].operating_carrier_id].display_code,
+                    itinerarios[i].legs[l].stops,
+                    itinerarios[i].prices
+                ))
+            numItinerarios += 1
 
 datos = pd.DataFrame([vars(r) for r in recordsCSV])
 
-columnsTitles = ['id_oferta', 'id_vuelo', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'num_vuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
+columnsTitles = ['id_oferta', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'num_vuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
 
 datos = datos.reindex(columns=columnsTitles)
 

@@ -65,9 +65,8 @@ class Segment:
                                                                                          self.departure, self.arrival, self.operating_carrier_id)
 
 class RecordCSV:
-    def __init__(self,id_oferta, id_vuelo, origen, destino, hora_salida, hora_llegada, duracion, num_vuelo, aerolinea, cod_aerolinea, escalas, precio):
+    def __init__(self,id_oferta, origen, destino, hora_salida, hora_llegada, duracion, num_vuelo, aerolinea, cod_aerolinea, escalas, precio):
         self.id_oferta = id_oferta
-        self.id_vuelo = id_vuelo
         self.origen = origen
         self.destino = destino
         self.hora_salida = hora_salida
