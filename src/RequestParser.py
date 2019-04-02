@@ -1,27 +1,40 @@
 import requests
 import json
 import datetime
+import Model
+import Constants
 
-def generateRequest(org,dest,date):
-    validateArguments(org,dest,date)
-    for city in cities:
+def generateRequest(org, dest, date, itineraryMode, maxPrice):
+    validateArguments(org, dest, date, itineraryMode, maxPrice)
+    for city in Constants.cities:
         if city["name"] == org:
             origin = city
         if city["name"] == dest:
             destination = city
-    data = setData(origin, destination,date)
-    return requests.post(URL, headers=headers, params=params, data=data)
-      
-def validateArguments(org,dest,date):
+    data = setData(origin, destination, date)
+    return requests.post(Constants.URL, headers=Constants.headers, params=Constants.params, data=data)
+
+
+def validateArguments(org, dest, date, itineraryMode, maxPrice):
     if org == dest:
         raise Exception('Origin and destination can not be the same city')
+
+    if not itineraryMode is None:
+        if itineraryMode != 'D' and itineraryMode != 'A':
+            raise Exception('Accepted values: (A)ll flights/(D)irect Flights')
+
+    if not maxPrice is None:
+        if maxPrice < 0:
+            raise Exception('MaxPrice must be greather than zero')
+
     try:
         datetime.datetime.strptime(date, '%Y-%m-%d')
     except ValueError:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
-def setData (origin, destination, date):
-    data_json = json.loads(dataScheme)
+
+def setData(origin, destination, date):
+    data_json = json.loads(Constants.dataScheme)
     data_json["legs"][0]["origin"] = origin["id"]
     data_json["legs"][0]["destination"] = destination["id"]
     data_json["legs"][0]["date"] = date
@@ -31,32 +44,104 @@ def setData (origin, destination, date):
     data = json.dumps(data_json)
     return data
 
-headers = {
-    'x-skyscanner-channelid': 'website',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
-    'content-type': 'application/json; charset=UTF-8'
-}
+def readSegments(response_json):
+    segments = {}
 
-params = (
-    ('geo_schema', 'skyscanner'),
-    ('response_include', 'query;deeplink;segment;stats;fqs;pqs')
-)
+    for seg in response_json['segments']:
+        segments[seg['id']] = Model.Segment(seg['id'],seg['origin_place_id'],seg['destination_place_id'],seg['arrival'],seg['departure'],seg['duration']
+                            ,seg['marketing_flight_number'],seg['marketing_carrier_id'],seg['operating_carrier_id'],seg['mode'])
 
-dataScheme = '{"market":"UK","currency":"GBP","locale":"en-GB","cabin_class":"economy","prefer_directs":true,"trip_type":"one-way","legs":[{"origin":"","destination":"","date":"","add_alternative_origins":false,"add_alternative_destinations":false}],"origin":{},"destination":{},"outboundDate":"2019-03-31","adults":1,"child_ages":[],"options":{"include_unpriced_itineraries":true,"include_mixed_booking_options":true},"state":{}}'
+    return segments
 
-URL = 'https://www.skyscanner.net/g/conductor/v1/fps3/search/'
+def readAirlines(response_json):
+    airlines = {}
 
-cities = [
-    {"id":"MAD","name":"Madrid","cityId":"MADR","cityName":"Madrid","countryId":"ES","type":"City","centroidCoordinates":[-3.563333,40.472222]},
-    {"id":"BCN","name":"Barcelona","cityId":"BARC","cityName":"Barcelona","countryId":"ES","type":"City","centroidCoordinates":[2.094444,41.302778]},
-    {"id":"LOND","name":"London","cityId":"LOND","cityName":"London","countryId":"UK","type":"City","centroidCoordinates":[-0.0943465343,51.5041174139]},
-    {"id":"PARI","name":"Paris","cityId":"PARI","cityName":"Paris","countryId":"FR","type":"City","centroidCoordinates":[2.3445033204,48.8600102994]},
-    {"id":"ROME","name":"Rome","cityId":"ROME","cityName":"Rome","countryId":"IT","type":"City","centroidCoordinates":[12.4908803859,41.8904833603]},
-    {"id":"LIS","name":"Lisbon","cityId":"LISB","cityName":"Lisbon","countryId":"PT","type":"City","centroidCoordinates":[-9.133333,38.781944]},
-    {"id":"AMS","name":"Amsterdam","cityId":"AMST","cityName":"Amsterdam","countryId":"NL","type":"City","centroidCoordinates":[4.768056,52.308333]},
-    {"id":"BERL","name":"Berlin","cityId":"BERL","cityName":"Berlin","countryId":"DE","type":"City","centroidCoordinates":[13.4245185552,52.4865621581]},
-    {"id":"ZRH","name":"Zurich","cityId":"ZURI","cityName":"Zurich","countryId":"CH","type":"City","centroidCoordinates":[8.551667,47.458333]},
-    {"id":"BRUS","name":"Brussels","cityId":"BRUS","cityName":"Brussels","countryId":"BE","type":"City","centroidCoordinates":[4.3592416078,50.8384245708]},
-    {"id":"DUB","name":"Dublin","cityId":"DUBL","cityName":"Dublin","countryId":"IE","type":"City","centroidCoordinates":[-6.252222,53.4325]},
-    {"id":"VIE","name":"Vienna","cityId":"VIEN","cityName":"Vienna","countryId":"AT","type":"City","centroidCoordinates":[16.55751,48.1221]}
-]
+    for airline in response_json['carriers']:
+        airlines[airline['id']] = Model.Airline(airline['id'],airline['name'],airline['alt_id'],airline['display_code'],airline['display_code_type'])
+
+    return(airlines)
+
+# Leemos a partir de la respuesta los diferentes 'places' y los almacenamos en un Dictionary de objetos Place
+def readPlaces(response_json):
+    places = {}
+
+    for place in response_json['places']:
+        places[place['id']] = Model.Place(place["id"],place["alt_id"],place["parent_id"],place["name"],place["type"],place["display_code"])
+
+    return places
+
+def readLegs(response_json, segments, places):
+    legs = {}
+    legSegments = {}
+
+    for l in response_json['legs']:
+        for s in l['segment_ids']:
+            legSegments[s] = segments[s]
+
+        legs[l['id']] = Model.Leg(l['id'], places[l['origin_place_id']], places[l['destination_place_id']],
+                            l['departure'], l['arrival'], legSegments, l['duration'], l['stop_count'])
+        legSegments = {}
+
+    return legs
+
+def readItineraries(response_json, legs):
+    itineraries = {}
+    itineraryLegs = {}
+
+    for it in response_json['itineraries']:
+        precio = 0.0
+        for opt in it['pricing_options']:
+            if 'amount' in opt['price']:
+                precio = opt['price']['amount']
+        for l in it['leg_ids']:
+            itineraryLegs[l] = legs[l]
+        itineraries[it['id']] = Model.Itinerarie(it['id'], itineraryLegs, precio)
+        itineraryLegs = {}
+
+    return itineraries
+
+def getOutputFormat(itineraries, airlines, places):
+    # Contador de Itinerarios y Segmentos como identificadores para la salida en formato CSV
+    numItinerarios = 1
+    numSegmentos = 1
+
+    recordsCSV = []
+    for i in itineraries:
+        for l in itineraries[i].legs:
+            for s in itineraries[i].legs[l].segments:
+                recordsCSV.append(Model.RecordCSV(
+                    numItinerarios,
+                    numSegmentos,
+                    places[itineraries[i].legs[l].segments[s].origin_place_id],
+                    places[itineraries[i].legs[l].segments[s].destination_place_id],
+                    itineraries[i].legs[l].segments[s].departure,
+                    itineraries[i].legs[l].segments[s].arrival,
+                    itineraries[i].legs[l].segments[s].duration,
+                    itineraries[i].legs[l].segments[s].marketing_flight_number,
+                    airlines[itineraries[i].legs[l].segments[s].operating_carrier_id].name,
+                    airlines[itineraries[i].legs[l].segments[s].operating_carrier_id].display_code,
+                    itineraries[i].legs[l].stops,
+                    itineraries[i].prices
+                ))
+                numSegmentos += 1
+            numItinerarios += 1
+
+    return recordsCSV
+
+def getDirectFlights(totalFlights):
+    directFlights = []
+
+    for flight in totalFlights:
+        if flight.escalas == 0:
+            directFlights.append(flight)
+
+    return directFlights
+
+def getFlightsByPrice(totalFlights, maxPrice):
+    filteredByPrice = []
+
+    for flight in totalFlights:
+        if flight.precio <= maxPrice:
+            filteredByPrice.append(flight)
+
+    return filteredByPrice

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Itinerarie:
     def __init__(self, id, legs, prices):
         self.id = id
