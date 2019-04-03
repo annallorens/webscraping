@@ -4,10 +4,7 @@ headers = {
     'content-type': 'application/json; charset=UTF-8'
 }
 
-params = (
-    ('geo_schema', 'skyscanner'),
-    ('response_include', 'query;deeplink;segment;stats;fqs;pqs')
-)
+
 
 dataScheme = '{"market":"UK","currency":"GBP","locale":"en-GB","cabin_class":"economy","prefer_directs":true,"trip_type":"one-way","legs":[{"origin":"","destination":"","date":"","add_alternative_origins":false,"add_alternative_destinations":false}],"origin":{},"destination":{},"outboundDate":"2019-03-31","adults":1,"child_ages":[],"options":{"include_unpriced_itineraries":true,"include_mixed_booking_options":true},"state":{}}'
 
@@ -28,4 +25,9 @@ cities = [
     {"id":"VIE","name":"Vienna","cityId":"VIEN","cityName":"Vienna","countryId":"AT","type":"City","centroidCoordinates":[16.55751,48.1221]}
 ]
 
-columnsTitles = ['id_oferta', 'id_vuelo', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'num_vuelo', 'aerolinea', 'cod_aerolinea', 'escalas', 'precio']
+params = (
+    ('geo_schema', 'skyscanner'),
+    ('response_include', 'query;deeplink;segment;stats;fqs;pqs')
+)
+
+columnsTitles = ['dia_busqueda', 'origen', 'destino', 'hora_salida', 'hora_llegada', 'duracion', 'num_vuelo', 'aerolinea', 'cod_aerolinea', 'precio']
