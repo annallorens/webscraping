@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Itinerarie:
     def __init__(self, id, legs, prices):
         self.id = id
@@ -65,8 +66,8 @@ class Segment:
                                                                                          self.departure, self.arrival, self.operating_carrier_id)
 
 class RecordCSV:
-    def __init__(self,id_oferta, origen, destino, hora_salida, hora_llegada, duracion, num_vuelo, aerolinea, cod_aerolinea, escalas, precio):
-        self.id_oferta = id_oferta
+    def __init__(self,dia_busqueda,origen, destino, hora_salida, hora_llegada, duracion, num_vuelo, aerolinea, cod_aerolinea, precio):
+        self.dia_busqueda = dia_busqueda
         self.origen = origen
         self.destino = destino
         self.hora_salida = hora_salida
@@ -74,7 +75,6 @@ class RecordCSV:
         self.duracion = duracion
         self.num_vuelo = num_vuelo
         self.aerolinea = aerolinea
-        self.escalas = escalas
         self.cod_aerolinea = cod_aerolinea
         self.precio = precio
 
