@@ -26,14 +26,13 @@ for i in range(1,26):
 
     outputDataFrame = pd.DataFrame([vars(r) for r in outputData])
     outputDataFrame = outputDataFrame.reindex(columns=Constants.columnsTitles)
-    fileName = "./pricingFlights.csv"
+    fileName = "./FlightPriceEvolution.csv"
 
     if os.stat(fileName).st_size == 0:
-        print('f')
         file = open(fileName,'w')
         outputDataFrame.to_csv(file, index = False)
     else:
-        print('s')
         file = open(fileName, 'a')
+        file.write("")
         outputDataFrame.to_csv(file, index = False, header=False)
     file.close()
