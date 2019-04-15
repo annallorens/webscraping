@@ -10,3 +10,26 @@ La actividad ha sido realizada por:
   
 * **Anna Llorens Roig**
 * **Carlos Villar Robles**
+
+## Ejecución:
+El script se debe ejecutar de la siguiente manera:
+```
+python3 src/main.py --origin Madrid --destination Paris
+```
+
+Actualmente se pueden combinar las siguientes ciudades origen-destino:
+
+- Madrid
+- Barcelona
+- London
+- Paris
+- Rome
+- Lisbon
+- Amsterdam
+- Berlin
+- Zurich
+- Brussels
+- Dublin
+- Vienna
+
+Los datos se almacenan en el fichero 'FlightPriceEvolution.csv'. Se pueden realizar diferentes ejecuciones que irán concatenando los resultados en el fichero. 
